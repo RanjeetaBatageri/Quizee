@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quizee — Coding Challenge Interactive Quiz</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Canvas for celebratory confetti -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo">
+        <span class="logo-icon">&lt;/&gt;</span>
+        <span class="logo-text">Quizee<span class="accent">.dev</span></span>
+      </div>
+      <div class="header-controls">
+        <button id="sound-toggle" class="icon-btn" aria-label="Toggle Sound" title="Toggle Sound (M)">
+          <span class="sound-icon">🔊</span>
+        </button>
+        <button id="theme-toggle" class="icon-btn" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+          <span class="theme-icon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-card" id="main-card">
+      
+      <!-- ================= START SCREEN ================= -->
+      <section id="start-screen" class="screen active">
+        <div class="hero-badge">⚡ Interactive Code Arena</div>
+        <h1 class="hero-title">Level Up Your <span class="gradient-text">Coding Skills</span></h1>
+        <p class="hero-subtitle">
+          Test your mastery of JavaScript, HTML, CSS, programming logic, and debugging. 
+          Race against the clock, build winning streaks, and climb developer tiers!
+        </p>
+
+        <!-- Configuration Form -->
+        <div class="quiz-config">
+          <!-- Difficulty Selection -->
+          <div class="config-group">
+            <label class="config-label">Select Difficulty:</label>
+            <div class="difficulty-picker" role="radiogroup" aria-label="Select difficulty level">
+              <button type="button" class="diff-btn active" data-difficulty="easy">
+                <span class="diff-icon">🌱</span>
+                <span class="diff-name">Easy</span>
+                <span class="diff-desc">15s / Basics & Concepts</span>
+              </button>
+              <button type="button" class="diff-btn" data-difficulty="medium">
+                <span class="diff-icon">⚡</span>
+                <span class="diff-name">Medium</span>
+                <span class="diff-desc">12s / Code Snippets & DOM</span>
+              </button>
+              <button type="button" class="diff-btn" data-difficulty="hard">
+                <span class="diff-icon">🔥</span>
+                <span class="diff-name">Hard</span>
+                <span class="diff-desc">10s / Edge Cases & Debugging</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Category Filter -->
+          <div class="config-group">
+            <label for="category-select" class="config-label">Topic Focus:</label>
+            <div class="select-wrapper">
+              <select id="category-select" class="custom-select">
+                <option value="all">🌐 All Topics (Comprehensive Mixed Challenge)</option>
+                <option value="javascript">⚡ JavaScript (ES6+, Scopes, Closures, DOM)</option>
+                <option value="html-css">🎨 HTML & CSS (Semantics, Specificity, Flex/Grid)</option>
+                <option value="logic">🧠 Programming Logic & Algorithms</option>
+                <option value="debugging">🐛 Bug Hunting & Error Fixing</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Questions Count Selection -->
+          <div class="config-group">
+            <label class="config-label">Question Count:</label>
+            <div class="count-picker">
+              <button type="button" class="count-btn" data-count="5">5 Questions</button>
+              <button type="button" class="count-btn active" data-count="10">10 Questions</button>
+              <button type="button" class="count-btn" data-count="15">15 Questions</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Start Actions & High Score Preview -->
+        <div class="start-actions">
+          <button id="start-btn" class="btn btn-primary pulse-btn">
+            <span class="btn-text">Start Challenge</span>
+            <span class="btn-icon">🚀</span>
+          </button>
+          
+          <div class="high-score-preview" id="high-score-preview">
+            <span>🏆 Best Score: <strong id="best-score-val">0</strong></span>
+            <span class="separator">•</span>
+            <span>🔥 Max Streak: <strong id="best-streak-val">0</strong></span>
+          </div>
+        </div>
+
+        <!-- Keyboard Shortcuts Hint -->
+        <div class="keyboard-hints">
+          <span>⌨️ <strong>Hotkeys:</strong> [1-4] Select Option • [Space/Enter] Next • [M] Mute Sound</span>
+        </div>
+      </section>
+
+      <!-- ================= QUIZ SCREEN ================= -->
+      <section id="quiz-screen" class="screen">
+        <!-- Top Stats Bar -->
+        <div class="quiz-top-bar">
+          <!-- Question Counter -->
+          <div class="stat-pill">
+            <span class="pill-label">Question</span>
+            <span class="pill-value"><span id="current-q-num">1</span>/<span id="total-q-num">10</span></span>
+          </div>
+
+          <!-- Category & Difficulty Badge -->
+          <div class="tag-group">
+            <span id="quiz-category-tag" class="category-badge">JavaScript</span>
+            <span id="quiz-diff-tag" class="diff-badge easy">Easy</span>
+          </div>
+
+          <!-- Streak Multiplier -->
+          <div class="streak-container" id="streak-container" title="Consecutive correct answers give multiplier bonus!">
+            <span class="streak-flame" id="streak-flame">🔥</span>
+            <span class="streak-text" id="streak-text">0x Streak</span>
+            <div class="streak-bonus-pill" id="streak-bonus-pill">+0%</div>
+          </div>
+
+          <!-- Current Score with Floating Points -->
+          <div class="stat-pill score-pill">
+            <span class="pill-label">Score</span>
+            <span class="pill-value" id="current-score">0</span>
+            <div id="floating-score" class="floating-score"></div>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-wrapper">
+          <div class="progress-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+          </div>
+        </div>
+
+        <!-- Question Box Area -->
+        <div class="question-container">
+          <div class="question-header">
+            <h2 id="question-text" class="question-title">Question loading...</h2>
+            
+            <!-- Circular Countdown Timer -->
+            <div class="timer-wrapper" title="Time remaining for this question">
+              <svg class="timer-svg" viewBox="0 0 44 44">
+                <circle class="timer-circle-bg" cx="22" cy="22" r="18" />
+                <circle class="timer-circle-fill" id="timer-circle-fill" cx="22" cy="22" r="18" />
+              </svg>
+              <span class="timer-num" id="timer-text">15</span>
+            </div>
+          </div>
+
+          <!-- Code Snippet Display (if present) -->
+          <div class="code-snippet-wrapper" id="code-snippet-container" style="display: none;">
+            <div class="code-snippet-header">
+              <div class="mac-dots">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+              </div>
+              <span class="code-language" id="code-language">javascript</span>
+            </div>
+            <pre><code class="code-content" id="code-content"></code></pre>
+          </div>
+
+          <!-- Options Grid -->
+          <div class="options-grid" id="options-grid" role="radiogroup" aria-label="Answer options">
+            <!-- Dynamic Buttons generated by app.js -->
+          </div>
+
+          <!-- Instant Feedback & Explanation Panel -->
+          <div class="feedback-panel" id="feedback-panel" style="display: none;" aria-live="polite">
+            <div class="feedback-banner" id="feedback-banner">
+              <div class="feedback-status">
+                <span class="feedback-icon" id="feedback-icon">✅</span>
+                <span class="feedback-title" id="feedback-title">Correct! +150 pts</span>
+              </div>
+              <div class="feedback-timer-bonus" id="feedback-timer-bonus">⚡ Quick answer: +25 bonus</div>
+            </div>
+            
+            <div class="feedback-explanation">
+              <h4 class="explanation-heading">💡 Code Explanation:</h4>
+              <p class="explanation-text" id="explanation-text"></p>
+            </div>
+
+            <div class="feedback-footer">
+              <div class="keyboard-next-hint">Press <kbd>Space</kbd> or <kbd>Enter</kbd> to continue</div>
+              <button id="next-btn" class="btn btn-primary next-btn">
+                <span>Next Question</span>
+                <span class="arrow-icon">➔</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= RESULTS SCREEN ================= -->
+      <section id="results-screen" class="screen">
+        <div class="results-header">
+          <div class="results-badge" id="results-badge">🏆 CHALLENGE COMPLETE</div>
+          <h2 class="results-title" id="results-rank-title">Senior Developer</h2>
+          <p class="results-summary" id="results-summary">Outstanding performance! Your code instincts are top notch.</p>
+        </div>
+
+        <!-- Score & Tier Card -->
+        <div class="score-showcase">
+          <div class="score-circle">
+            <span class="score-label">FINAL SCORE</span>
+            <span class="score-number" id="final-score-val">0</span>
+            <span class="new-high-score-badge" id="new-high-score-badge" style="display: none;">🎉 NEW HIGH SCORE!</span>
+          </div>
+
+          <!-- Quick Stats Grid -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <span class="metric-icon">🎯</span>
+              <span class="metric-val" id="res-accuracy">0%</span>
+              <span class="metric-lbl">Accuracy</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-icon">🔥</span>
+              <span class="metric-val" id="res-max-streak">0</span>
+              <span class="metric-lbl">Max Streak</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-icon">⏱️</span>
+              <span class="metric-val" id="res-avg-time">0s</span>
+              <span class="metric-lbl">Avg. Speed</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-icon">📊</span>
+              <span class="metric-val" id="res-correct-count">0/0</span>
+              <span class="metric-lbl">Correct Answers</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Breakdown by Category -->
+        <div class="breakdown-section">
+          <h3 class="breakdown-title">Knowledge Domain Breakdown</h3>
+          <div class="category-bars" id="category-bars-container">
+            <!-- Dynamically populated category progress bars -->
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="results-actions">
+          <button id="replay-btn" class="btn btn-primary pulse-btn">
+            <span class="btn-icon">🔄</span>
+            <span>Play Again</span>
+          </button>
+          <button id="review-mistakes-btn" class="btn btn-secondary">
+            <span class="btn-icon">🔍</span>
+            <span>Review Answers</span>
+          </button>
+          <button id="change-settings-btn" class="btn btn-outline">
+            <span class="btn-icon">⚙️</span>
+            <span>Change Settings</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= REVIEW MODAL / DRAWER ================= -->
+      <section id="review-screen" class="screen">
+        <div class="review-header">
+          <button id="close-review-btn" class="btn btn-outline icon-btn-text">
+            <span>← Back to Results</span>
+          </button>
+          <h2>Question by Question Review</h2>
+          <div class="review-filter-group">
+            <button class="review-filter-btn active" data-filter="all">All (<span id="rev-count-all">0</span>)</button>
+            <button class="review-filter-btn" data-filter="incorrect">Incorrect (<span id="rev-count-wrong">0</span>)</button>
+            <button class="review-filter-btn" data-filter="correct">Correct (<span id="rev-count-right">0</span>)</button>
+          </div>
+        </div>
+
+        <div class="review-list" id="review-list">
+          <!-- Dynamically populated list of detailed reviewed questions -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Built with Vanilla JavaScript, DOM Manipulation & CSS Keyframe Animations • Coding Challenge Edition</p>
+    </footer>
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script src="js/audio.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/questions.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+
